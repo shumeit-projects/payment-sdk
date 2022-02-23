@@ -6,7 +6,7 @@
 <dependency>
     <groupId>com.shumeit</groupId>
     <artifactId>payment-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-RELEASE</version>
 </dependency>
 ```
 
