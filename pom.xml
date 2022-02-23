@@ -8,6 +8,10 @@
     <artifactId>payment-sdk</artifactId>
     <version>1.0.0-RELEASE</version>
 
+    <name>DAIT Payment Java SDK</name>
+    <description>数美信息支付java SDK.</description>
+    <url>https://github.com/shumeit-projects/payment-sdk</url>
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
