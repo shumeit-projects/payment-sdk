@@ -4,7 +4,7 @@
 
 ```xml
 <dependency>
-    <groupId>com.shumeit</groupId>
+    <groupId>com.shumeit.sdk</groupId>
     <artifactId>payment-sdk</artifactId>
     <version>1.0.0-RELEASE</version>
 </dependency>
