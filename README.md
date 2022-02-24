@@ -1,4 +1,4 @@
-# 数美聚合支付SDK
+# 深圳数美信息-聚合支付SDK [![Build Status](https://app.travis-ci.com/shumeit-projects/payment-sdk.svg?branch=master)](https://app.travis-ci.com/shumeit-projects/payment-sdk) ![Maven Central](https://img.shields.io/maven-central/v/com.shumeit.sdk/payment-sdk) [![GitHub license](https://img.shields.io/github/license/shumeit-projects/payment-sdk?style=social)](https://github.com/shumeit-projects/payment-sdk/blob/master/LICENSE)
 
 # maven依赖
 
