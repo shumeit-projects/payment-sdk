@@ -99,10 +99,4 @@ public class SimpleHttpClient {
         }
 
     }
-
-
-    public static void main(String[] args) {
-        String r = SimpleHttpClient.post("http://192.168.0.236:58151/trade/doPay", "");
-        System.out.println(r);
-    }
 }
