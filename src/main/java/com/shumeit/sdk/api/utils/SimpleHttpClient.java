@@ -54,6 +54,7 @@ public class SimpleHttpClient {
         try {
             os = conn.getOutputStream();
             os.write(content.getBytes(StandardCharsets.UTF_8));
+            os.flush();
             is = new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
             int nRead;
             while ((nRead = is.read(readBuf)) != -1) {
