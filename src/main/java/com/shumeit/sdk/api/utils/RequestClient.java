@@ -13,9 +13,18 @@ import java.util.Objects;
 /**
  * 请求处理工具类
  */
-public class RequestUtil {
-    private static final Logger logger = LoggerFactory.getLogger(RequestUtil.class);
+public class RequestClient {
+    private static final Logger logger = LoggerFactory.getLogger(RequestClient.class);
     private static final Type responseType = new ParameterizedTypeImpl(new Type[]{String.class}, null, Response.class);
+    private final SecurityUtil securityUtil;
+
+    public RequestClient(SecurityUtil securityUtil) {
+        this.securityUtil = securityUtil;
+    }
+
+    public RequestClient(String platPubKey, String mchPriKey) {
+        this.securityUtil = new SecurityUtil(platPubKey, mchPriKey);
+    }
 
     /**
      * <p>发起交易请求</p>
@@ -34,7 +43,7 @@ public class RequestUtil {
      * @return .
      * @throws SDKException .
      */
-    public static Response<String> doRequest(String url, Request request) throws SDKException {
+    public Response<String> doRequest(String url, Request request) throws SDKException {
         //1.参数简单校验
         if (StringUtil.isEmpty(request.getRandStr())) {
             request.setRandStr(StringUtil.gen32LenRand());
@@ -45,11 +54,11 @@ public class RequestUtil {
         if (!(request.getData() instanceof String)) {
             request.setData(JsonUtil.toString(request.getData()));
         }
-        SecurityUtil.sign(request);
+        securityUtil.sign(request);
 
         //3.对secKey执行rsa加密
         if (!StringUtil.isEmpty(request.getSecKey())) {
-            request.setSecKey(SecurityUtil.encryptSecKey(request.getSecKey()));
+            request.setSecKey(securityUtil.encryptSecKey(request.getSecKey()));
         }
 
         //5.发起http(s)请求
@@ -69,7 +78,7 @@ public class RequestUtil {
         //7.对响应数据进行验签
         boolean isSignOk;
         try {
-            isSignOk = SecurityUtil.verify(response);
+            isSignOk = securityUtil.verify(response);
         } catch (Exception e) {
             System.out.println(respJson);
             throw new SDKException(SDKException.RESP_SECURITY_VERIFY_FAIL_CODE, "请求完成，但响应信息验签出现异常", e);
@@ -83,7 +92,7 @@ public class RequestUtil {
 
         //8.对响应数据中的sec_key进行rsa解密
         if (!StringUtil.isEmpty(response.getSecKey())) {
-            String secKeyPlainText = SecurityUtil.decryptSecKey(response.getSecKey());
+            String secKeyPlainText = securityUtil.decryptSecKey(response.getSecKey());
             response.setSecKey(secKeyPlainText);
         }
 

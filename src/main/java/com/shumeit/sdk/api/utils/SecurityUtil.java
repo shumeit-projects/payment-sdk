@@ -23,11 +23,15 @@ public class SecurityUtil {
     public final static String DATA_KEY = "data";
     public final static Set<String> NOT_SIGN_PARAM = new HashSet<>(Arrays.asList("sign", "secKey"));//不参与签名/验签的参数
 
-    private static PublicKey publicKey;
-    private static PrivateKey privateKey;
-    private static volatile boolean inited;
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+    private volatile boolean inited;
 
-    public static synchronized void init(String platPubKey, String mchPriKey) {
+    public SecurityUtil(String platPubKey, String mchPriKey) {
+        this.init(platPubKey, mchPriKey);
+    }
+
+    private synchronized void init(String platPubKey, String mchPriKey) {
         if (inited) {
             throw new SDKException(SDKException.COMMON_EX_CODE, "SecurityUtil已初始化,请勿重复调用");
         }
@@ -40,7 +44,7 @@ public class SecurityUtil {
         }
     }
 
-    private static void checkInit() {
+    private void checkInit() {
         if (!inited) {
             throw new SDKException(SDKException.COMMON_EX_CODE, "SecurityUtil未初始化,请先调用SecurityUtil.init完成初始化");
         }
@@ -52,7 +56,7 @@ public class SecurityUtil {
      * @param response .
      * @return .
      */
-    public static boolean verify(Response<String> response) {
+    public boolean verify(Response<String> response) {
         checkInit();
         String signStr = getSortedString(response);
         return RSAUtil.verify(signStr, publicKey, response.getSign());
@@ -64,7 +68,7 @@ public class SecurityUtil {
      * @param callback .
      * @return .
      */
-    public static boolean verify(Callback<String> callback) {
+    public boolean verify(Callback<String> callback) {
         checkInit();
         String signStr = getSortedString(callback);
         return RSAUtil.verify(signStr, publicKey, callback.getSign());
@@ -76,7 +80,7 @@ public class SecurityUtil {
      *
      * @param request .
      */
-    public static void sign(Request<?> request) {
+    public void sign(Request<?> request) {
         checkInit();
         if (request == null) {
             throw new SDKException(SDKException.PARAM_CHECK_FAIL_CODE, "request为null");
@@ -93,7 +97,7 @@ public class SecurityUtil {
      * @param secKeyPlainText .
      * @return .
      */
-    public static String encryptSecKey(String secKeyPlainText) {
+    public String encryptSecKey(String secKeyPlainText) {
         return RSAUtil.encryptByPublicKey(secKeyPlainText, publicKey);
     }
 
@@ -103,7 +107,7 @@ public class SecurityUtil {
      * @param secKeyCipherText .
      * @return .
      */
-    public static String decryptSecKey(String secKeyCipherText) {
+    public String decryptSecKey(String secKeyCipherText) {
         return RSAUtil.decryptByPrivateKey(secKeyCipherText, privateKey);
     }
 
