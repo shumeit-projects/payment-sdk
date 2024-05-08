@@ -1,5 +1,7 @@
 package com.shumeit.sdk.api.utils;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import com.shumeit.sdk.api.entity.Request;
 import com.shumeit.sdk.api.entity.Response;
@@ -7,8 +9,10 @@ import com.shumeit.sdk.api.exceptions.SDKException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Type;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 请求处理工具类
@@ -97,6 +101,36 @@ public class RequestClient {
         }
 
         return response;
+    }
+
+    public String uploadFile(String url, String mchNo, File file) {
+        if (!file.exists()) {
+            throw new SDKException(SDKException.PARAM_CHECK_FAIL_CODE, "文件不存在:" + file.getPath());
+        }
+        JSONObject reqData = new JSONObject();
+        reqData.put("originalFileName", file.getName());
+        reqData.put("category", null);
+
+        Request<JSONObject> req = new Request<>();
+        req.setMethod("file.genCommonUploadCertificate");
+        req.setVersion("1.0");
+        req.setData(reqData);
+        req.setRandStr(UUID.randomUUID().toString().replaceAll("-", ""));
+        req.setSignType("1");
+        req.setMchNo(mchNo);
+        req.setSecKey("");
+        Response<String> response = doRequest(url, req);
+        if (!Objects.equals(response.getRespCode(), "success")) {
+            throw new SDKException(SDKException.COMMON_EX_CODE, "获取文件上传凭证失败:" + response.getData());
+        }
+        Map<String, String> uploadCertificate = JsonUtil.toBean(response.getData(), new TypeReference<Map<String, String>>() {
+        });
+        String host = uploadCertificate.remove("__host");
+        String fileUrl = uploadCertificate.remove("__fileUrl");
+        List<String> needRemoveKeys = uploadCertificate.keySet().stream().filter(p -> p != null && p.startsWith("__")).collect(Collectors.toList());
+        needRemoveKeys.forEach(uploadCertificate::remove);
+        SimpleHttpClient.uploadFile(host, uploadCertificate, Collections.singletonMap("file", file));
+        return fileUrl;
     }
 
     private static void requestParamValid(Request<?> request) {
